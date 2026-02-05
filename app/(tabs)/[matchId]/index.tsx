@@ -2,34 +2,23 @@ import { createRequest } from '@/api/requst';
 import { HelloWave } from '@/components/hello-wave';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MatchCard } from '@/components/ui/match-card';
 import { useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import { FlatList, StyleSheet } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-const today = dayjs().toISOString().split('T')[0];
-const twoDayAhead = dayjs().add(2, 'day').toISOString().split('T')[0]
-
-export default function HomeScreen() {
+export default function MatchScreen() {
+  const { matchId } = useLocalSearchParams()
   const { data: matches, isFetching } = useQuery({
-    queryKey: ['gamesList'],
-    queryFn: () => createRequest(`/Games/list?To=${twoDayAhead}&From=${today}`),
+    queryKey: ['gamesList', matchId],
+    queryFn: () => createRequest(`/Games/${matchId}`),
   })
 
   return (
     <ThemedView style={styles.content}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Добро пожаловать!</ThemedText>
+        <ThemedText type="title">Добро пожаловать! на матч</ThemedText>
         <HelloWave />
       </ThemedView>
-      {isFetching && <ThemedText>
-        Загрузка...
-      </ThemedText>}
-      <FlatList
-        data={matches}
-        renderItem={({ item }) => <MatchCard {...item}/>}
-        keyExtractor={item => item.id}
-      />
     </ThemedView>
   );
 }
@@ -50,4 +39,9 @@ const styles = StyleSheet.create({
     gap: 16,
     overflow: 'hidden',
   },
+  matchCard: {
+    marginVertical: 16,
+    marginHorizontal: 4,
+    gap: 4,
+   }
 });
